@@ -1,5 +1,8 @@
 <?php
 
+ini_set('precision', 10);
+ini_set('serialize_precision', 10);
+
 class Payout {
     
     /*  Script for DataAutomation developer test that calculates the total number of payouts for employees.
@@ -60,14 +63,14 @@ class Payout {
         return $airtable_response;
 	}
     
-    function post_payouts_data($data) {
+    public function post_payouts_data($data) {
         // API URL
         $url = 'https://auth.da-dev.us/devtest1';
 
         // Create a new cURL resource
         $ch = curl_init($url);
 
-        $payload = json_encode($data);
+        $payload = json_encode($data, true);
         
         $headers = array(
             'Content-Type: application/json',
@@ -93,14 +96,7 @@ class Payout {
         // Close cURL resource
         curl_close($ch);
         
-        
-        if($status == 200){
-           $response = "Post Successfully!";
-        } else {
-            $response = $status;
-        }
-        
-        return $response;
+        return $result;
     }
     
     function get_total_pay() {
@@ -111,19 +107,21 @@ class Payout {
               $name = $record['fields']['Name'];
               $amount = $record['fields']['Amount'];
               if (!isset($results[$name])){
-                $results[$name] = round($amount);
+                $results[$name] = $amount;
               } else {
-                $results[$name] += round($amount);
+                $results[$name] += $amount;
               }
           }
         }
         
         //post payload of total payout of all employees
-        $this->post_payouts_data($results);
+        $res = $this->post_payouts_data($results);
+        return $res;
     }
 }
 
 $payoutClass = new Payout('my_airtable_api_key', 'my_airtable_base_id', 'my_airtable_table', 'devtest_username','devtest_password');
 $data = $payoutClass->get_total_pay();
+print_r($data);
 
 ?>
