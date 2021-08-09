@@ -94,7 +94,7 @@ class Payout {
         curl_close($ch);
         
         
-        if($status == 400){
+        if($status == 200){
            $response = "Post Successfully!";
         } else {
             $response = $status;
